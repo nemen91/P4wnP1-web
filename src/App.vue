@@ -198,7 +198,7 @@ export default {
   },
   methods: {
     updateStatus() {
-      this.$http.get("http://192.168.43.234:8080/data").then(
+      this.$http.get("/data").then(
         resp => {
           this.connected = true;
           this.updateData(resp.body);
@@ -215,7 +215,7 @@ export default {
     },
     onRun() {
       this.$http
-        .post("http://192.168.43.234:8080/exec/ducky", { code: this.code })
+        .post("/exec/ducky", { code: this.code })
         .then(
           resp => {
             this.notify("Script Executed");
@@ -242,7 +242,7 @@ export default {
       this.snippets[name] = snippet;
 
       this.$http
-        .put(`http://192.168.43.234:8080/scripts/ducky/${name}`, {
+        .put(`/scripts/ducky/${name}`, {
           code: snippet
         })
         .then(
@@ -263,7 +263,7 @@ export default {
 
       this.$http
         .delete(
-          `http://192.168.43.234:8080/scripts/ducky/${this.deleteDialogIndex}`,
+          `/scripts/ducky/${this.deleteDialogIndex}`,
           { code: "" }
         )
         .then(
