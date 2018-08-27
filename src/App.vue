@@ -229,6 +229,7 @@ export default {
         );
     },
     onCodeChange(code) {
+      this.code = code;
       localStorage.setItem("code", code);
     },
     undoClear() {
