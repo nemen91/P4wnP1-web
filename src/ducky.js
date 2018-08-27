@@ -93,54 +93,7 @@ CodeMirror.defineMode("ducky", function(config, parserConfig) {
   }
   function tokenBase(stream, state) {
     var ch = stream.next();
-    if (ch == '"' || ch == "'") {
-      state.tokenize = tokenString(ch);
-      return state.tokenize(stream, state);
-    } else if (ch == "." && stream.match(/^\d+(?:[eE][+\-]?\d+)?/)) {
-      return ret("number", "number");
-    } else if (ch == "." && stream.match("..")) {
-      return ret("spread", "meta");
-    } else if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
-      return ret(ch);
-    } else if (ch == "=" && stream.eat(">")) {
-      return ret("=>", "operator");
-    } else if (ch == "0" && stream.match(/^(?:x[\da-f]+|o[0-7]+|b[01]+)n?/i)) {
-      return ret("number", "number");
-    } else if (/\d/.test(ch)) {
-      stream.match(/^\d*(?:n|(?:\.\d*)?(?:[eE][+\-]?\d+)?)?/);
-      return ret("number", "number");
-    } else if (ch == "/") {
-      if (stream.eat("*")) {
-        state.tokenize = tokenComment;
-        return tokenComment(stream, state);
-      } else if (stream.eat("/")) {
-        stream.skipToEnd();
-        return ret("comment", "comment");
-      } else if (expressionAllowed(stream, state, 1)) {
-        readRegexp(stream);
-        stream.match(/^\b(([gimyus])(?![gimyus]*\2))+\b/);
-        return ret("regexp", "string-2");
-      } else {
-        stream.eat("=");
-        return ret("operator", "operator", stream.current());
-      }
-    } else if (ch == "`") {
-      state.tokenize = tokenQuasi;
-      return tokenQuasi(stream, state);
-    } else if (ch == "#") {
-      stream.skipToEnd();
-      return ret("error", "error");
-    } else if (isOperatorChar.test(ch)) {
-      if (ch != ">" || !state.lexical || state.lexical.type != ">") {
-        if (stream.eat("=")) {
-          if (ch == "!" || ch == "=") stream.eat("=");
-        } else if (/[<>*+\-]/.test(ch)) {
-          stream.eat(ch);
-          if (ch == ">") stream.eat(ch);
-        }
-      }
-      return ret("operator", "operator", stream.current());
-    } else if (wordRE.test(ch)) {
+    if (wordRE.test(ch)) {
       stream.eatWhile(wordRE);
       var word = stream.current();
       if (state.lastType != ".") {
@@ -148,11 +101,6 @@ CodeMirror.defineMode("ducky", function(config, parserConfig) {
           var kw = keywords[word];
           return ret(kw.type, kw.style, word);
         }
-        if (
-          word == "async" &&
-          stream.match(/^(\s|\/\*.*?\*\/)*[\[\(\w]/, false)
-        )
-          return ret("async", "keyword", word);
       }
       return ret("variable", "variable", word);
     }
