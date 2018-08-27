@@ -34,7 +34,7 @@
             <v-divider></v-divider>
 
             <v-card-text style="padding: 0">
-              <codemirror v-model="code" :options="cmOptions"></codemirror>
+              <codemirror :value="code" :options="cmOptions" @input="onCodeChange"></codemirror>
             </v-card-text>
           </v-card>
 
@@ -179,6 +179,7 @@ export default {
   },
   computed: {},
   beforeMount() {
+    this.code = localStorage.getItem("code")
     this.updateStatus();
     setInterval(() => {
       this.updateStatus();
@@ -198,7 +199,7 @@ export default {
   },
   methods: {
     updateStatus() {
-      this.$http.get("/data").then(
+      this.$http.get("http://192.168.43.234:8080/data").then(
         resp => {
           this.connected = true;
           this.updateData(resp.body);
@@ -215,7 +216,7 @@ export default {
     },
     onRun() {
       this.$http
-        .post("/exec/ducky", { code: this.code })
+        .post("http://192.168.43.234:8080/exec/ducky", { code: this.code })
         .then(
           resp => {
             this.notify("Script Executed");
@@ -226,6 +227,9 @@ export default {
             else this.notify("Error executing script", false);
           }
         );
+    },
+    onCodeChange(code) {
+      localStorage.setItem("code", code);
     },
     undoClear() {
       this.code = this.oldCode;
@@ -242,7 +246,7 @@ export default {
       this.snippets[name] = snippet;
 
       this.$http
-        .put(`/scripts/ducky/${name}`, {
+        .put(`http://192.168.43.234:8080/scripts/ducky/${name}`, {
           code: snippet
         })
         .then(
@@ -263,7 +267,7 @@ export default {
 
       this.$http
         .delete(
-          `/scripts/ducky/${this.deleteDialogIndex}`,
+          `http://192.168.43.234:8080/scripts/ducky/${this.deleteDialogIndex}`,
           { code: "" }
         )
         .then(
